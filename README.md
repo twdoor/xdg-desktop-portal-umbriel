@@ -61,15 +61,19 @@ and choose **Share**; requests that allow multiple sources support clicking card
 to select or deselect them, including across tabs. Space toggles a focused card in
 multiple-selection mode, Enter shares, and Escape cancels.
 
-Window decorations are delegated to the compositor. Controls follow Umbriel's
-live palette and corner radius, with GTK theme colors as a fallback. The picker
-defaults to Cairo rendering to avoid GPU renderer startup and shutdown overhead;
-an explicit `GSK_RENDERER` environment setting still takes precedence.
+Window decorations are delegated to the compositor: the picker sets `GTK_CSD=0`
+and draws no titlebar, so Umbriel owns the border and corner clipping. Controls
+follow Umbriel's live palette and corner radius, with GTK theme colors as a
+fallback. The picker defaults to Cairo rendering to avoid GPU renderer startup
+and shutdown overhead; explicit `GTK_CSD` or `GSK_RENDERER` settings still take
+precedence.
 
 Screen and window previews are snapshots taken as cards become visible using the same Wayland image
-capture protocols as screencasting. Hidden tabs and offscreen cards are deferred.
-Each capture session is destroyed and its cleanup acknowledged before the worker
-goes idle. Snapshots load asynchronously, remain in memory,
+capture protocols as screencasting. Hidden tabs and offscreen cards are deferred:
+captures start when a card is scrolled or switched into view, and each finished
+thumbnail is handed to the UI on the main loop. Each capture session is destroyed
+and its cleanup acknowledged before the worker goes idle. Snapshots load
+asynchronously, remain in memory,
 and are discarded when the picker closes. Sources without a supported preview
 remain selectable with a placeholder. The chooser's JSON input/output format is
 unchanged. Window capture requires Umbriel's fix for output membership and frame
@@ -89,6 +93,10 @@ max_fps = 0
 cmd = ""
 color_pick_cmd = ""
 ```
+
+## Screencast cursor modes
+
+Applications can request hidden, embedded, or metadata cursors for a screencast. Metadata cursors are published through PipeWire when version 1.4.8 or newer is available. Older PipeWire versions, or Wayland sessions without a pointer, use an embedded cursor instead.
 
 ## License
 
